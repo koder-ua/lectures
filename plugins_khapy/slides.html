@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-slide-content {
+        font-size: 30px;
+        padding: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+Плагины
+=======
+
+???
+* что такое плагины
+* больше для себя
+* много хороших программ имеют плагины,
+  но это скорее не следствие а причина
+
+* для написания плагина нужен минимум знаний о программе,
+  не нужно даже уметь ее собирать
+* аналог библиотеки с отложенной загрузкой, API для которой определяем мы
+* проверить надежность с библиотекой можно, с плагинами - нет
+* улучшение через наказание
+
+* FUEL
+* чаще всего не нужно пытаться делать плагины сразу
+* Эволюционный дизайн
+* сделать вовремя
+
+* постепенно будем двигаться ко все
+  более гибким плагинам
+
+---
+
+Самый просто вариант
+====================
+
+* выделенная точка в коде
+
+???
+* Берем наш большой продукт и смотрим где что можно/нужно отрезать
+* откладываем второстепенную функциональность на потом
+* сделать точку вызова
+* найти и загрузить плагины
+* зарегистрировать обработчики
+
+---
+Самый простой вариант плагина
+=============================
+
+```
+app/
+    __init__.py
+    loader.py
+    plugins/
+        __init__.py
+        sms.py
+        telegram.py
+        slack.py
+```
+
+---
+
+```python
+# plugins/sms.py
+
+def send_notification(target, header, content):
+    smslib.send_sms(...)
+
+```
+
+---
+
+```python
+# loader.py
+
+from pathlib import Path
+import importlib
+from . import plugins
+
+plugins_folder = Path(plugins.__file__).parent
+plugins = []
+
+# find plugins
+for plugin_path in plugins_folder.iterdir():
+    if plugin_path.name[0] not in "._":
+        mod_name = f"{__package__}.plugins.{plugin_path.name}"
+        plugins.append(importlib.import_module(mod_name))
+```
+
+---
+
+```python
+# loader.py
+
+# find callbacks
+send_plugins = []
+for plugin in plugins:
+    try:
+        send_plugins.append(plugin.send_notification)
+    except AttributeError:
+        pass
+```
+
+???
+* привязка по имени плохая
+* только одна функция на модуль
+* нет проверки интерфейса - типизация!
+
+---
+
+```python
+# plugins/sms.py
+from app.plugins_api import register_plugin, Endpoint
+
+
+@register_plugin(Endpoint.notification)
+def send_notification(target: str, header: str, content: str) -> None:
+    smslib.send_sms(...)
+```
+
+???
+* начинайте проектировать с примеров использования
+* возникает циклическая ссылка - отдельный модуль
+* в него описание апи, вспомогательные функции, тесты для плагинов
+
+---
+
+```python
+# plugins_api.py
+from enum import Enum, auto
+
+class Endpoint(Enum):
+    notification = auto()
+
+enpoints = {}
+
+def register_plugin(endpoint: Endpoint):
+    def closure(func):
+        enpoints.setdefault(endpoint, []).append(func)
+        return func
+    return closure
+```
+
+---
+
+```python
+# plugins_api.py
+
+annotations = {}
+
+def plugin_annotation(endpoint: Endpoint):
+    def closure(func):
+        assert endpoint not in annotations
+        annotations[endpoint] = func.__annotations__
+        return func
+    return closure
+
+
+@plugin_annotation(Endpoint.notification)
+def notification_prototype(target: str, header: str, content: str) -> None:
+    pass
+
+print(notification_prototype.__annotation__)
+# >>> {"target": str, "header": str, "content": str, "return": None}
+```
+
+---
+
+```python
+def register_plugin(endpoint: Endpoint):
+    def closure(func):
+        assert annotations[endpoint] == func.__annotations__
+        enpoints.setdefault(endpoint, []).append(func)
+        return func
+    return closure
+```
+
+???
+* конфигурирование плагинов
+* инстансы
+
+---
+
+```python
+# plugins_api.py
+import abc
+
+
+class INotificationPlugin(metaclass=abc.ABCMeta):
+    name: str
+
+    @abc.abstractmethod
+    def configure(self, config: Dict[str, Any]) -> None:
+        ...
+
+    @abc.abstractmethod
+    def send(self, target: str, header: str, content: str) -> None:
+        ...
+
+```
+
+???
+* name & configure будут повторяться
+* можно использовать декораторы для классов, но
+* авторегистрация!
+
+---
+
+```python
+# plugins_api.py
+import inspect
+
+plugins = {}
+
+class IPlugin(metaclass=abc.ABCMeta):
+    def __init_subclass__(cls):
+        if inspect.isabstract(cls):
+            return
+
+        for interface in cls.__mro__[1:]:
+            if inspect.isabstract(interface):
+                plugins.setdefault(interface, []).append(cls)
+
+    name: str
+
+    @abc.abstractmethod
+    def configure(self, config: Dict[str, Any]) -> None:
+        ...
+
+
+class INotificationPlugin(IPlugin):
+    @abc.abstractmethod
+    def send(self, target: str, header: str, content: str) -> None:
+        ...
+```
+
+???
+* не надо помещать словарь plugins в IPlugin
+* наверное стоит явно маркать финальные классы
+
+---
+
+Конфигурация
+============
+
+```
+[app]
+setting1 = 12
+
+[plugin:sms]
+setting3 = 13
+```
+???
+* мержить конфиги?
+
+---
+
+Отделяем плагины от основного кода
+============
+
+```python
+import pkgutil
+
+
+flask_plugins = []
+for _, name, _ in pkgutil.iter_modules():
+    if is_this_my_plugin(name):
+        flask_plugins.append(name)
+```
+
+
+---
+setuptools
+==========
+```python
+# sms/setup.py
+
+setup(
+    entry_points={'app.plugins': 'notification = sms_plugin:SmsNotification'},
+)
+```
+
+```python
+# app/plugins.py
+
+import pkg_resources
+
+plugins = {}
+for entry_point in pkg_resources.iter_entry_points('app.plugins')
+    plugins.setdefault(entry_point.name, []).append(entry_point.load())
+```
+
+---
+
+Что осталось
+============
+
+* фильтрация плагинов
+* ...
+
+https://github.com/mitsuhiko/pluginbase
+https://docs.openstack.org/stevedore/
+
+---
+
+Немного про API плагинов
+========================
+
+* входные параметры констанстантны, все обновления в виде результатов
+* по возможности используйте встроенные типы данных
+
+---
+
+???
+* плагины могут вставляться только в строго ограниченных точках
+* не могут влиять на control flow
+* дожмем идею
+
+---
+
+```
+         D -> E -> Storage
+         ^
+         |
+input -> A -> B -> C -> output
+```
+---
+
+pod/vm scaler
+=============
+
+```
+ReadLoad -> LoadHistory -> Predictors -> PredictionMixer -> ScaleDriver
+                ^                                        -> Storage
+             Storage                                    
+```
+
+---
+
+Разнесение в другие процессы
+============================
+
+* k8s - grpc
+* микросервисы 
+
+---
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="remark-zoom.js" type="text/javascript"></script>
+    <script src="http://gnab.github.io/remark/downloads/remark-latest.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({highlightStyle: 'solarized-light', ratio: '4:3'});
+
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+
+      MathJax.Hub.Configured();
+    </script>
+  </body>
+</html>

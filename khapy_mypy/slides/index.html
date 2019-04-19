@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	
+	<title>pydown</title>
+	
+	<meta name="description" content="A jQuery library for modern HTML presentations">
+	<meta name="author" content="Caleb Troughton">
+	<meta name="viewport" content="width=1024, user-scalable=no">
+	
+	<!-- Core and extension CSS files -->
+	<link rel="stylesheet" href="css/deck.core.css">
+	<link rel="stylesheet" href="css/deck.status.css">
+	<link rel="stylesheet" href="css/deck.scale.css">
+	
+	<!-- Style theme. More available in /themes/style/ or create your own. -->
+	<link rel="stylesheet" href="css/web-2.0.css">
+	
+	<!-- Transition theme. More available in /themes/transition/ or create your own. -->
+	<link rel="stylesheet" href="css/horizontal-slide.css">
+
+	<link rel="stylesheet" href="css/md_hl.css">
+	
+	<script src="js/modernizr.custom.js"></script>
+</head>
+
+<body class="deck-container">
+
+<!-- Begin slides -->
+<section class="slide "><div class="content"><h2>Типизация в питоне</h2>
+<h3>Данилов Константин, Mirantis</h3>
+<h3>http://koder-ua.blogspot.com/</h3>
+<h3>https://github.com/koder-ua/</h3></div></section>
+<section class="slide "><div class="content"><h3>Настоящие пацаны на английском</h3>
+<p>Dec 2016 BayPiggies Talk at LinkedIn: Introducing Type Annotations for Python - https://www.youtube.com/watch?v=ZP_QV4ccFHQ</p></div></section>
+<section class="slide "><div class="content"><h3>Проблемы</h3>
+<div class="codehilite"><pre>    <span class="k">def</span> <span class="nf">do_something</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">operations</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+        <span class="o">.....</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><div class="codehilite"><pre><span class="o">*</span> Подавляющее большинство кода типизировано <span class="p">(</span><span class="n">pypy</span><span class="o">/</span><span class="n">psyco</span><span class="p">)</span>
+<span class="o">*</span> Особенно библиотеки
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Способы решение</h3>
+<div class="codehilite"><pre><span class="o">*</span> докстринги <span class="o">-</span> не фонтан
+<span class="o">*</span> <span class="n">Type</span> <span class="n">inference</span> <span class="o">-</span> <span class="n">RPython</span><span class="p">,</span> <span class="n">pypy</span><span class="p">,</span> <span class="n">nuitka</span><span class="p">,</span> <span class="n">etc</span>
+<span class="o">*</span> <span class="n">typechecker</span> <span class="o">-</span> не совсем то
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>python 3000</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="kd">function</span> <span class="nx">annotation</span>
+<span class="o">*</span> <span class="nx">cython</span><span class="p">,</span> <span class="nx">pychecker</span><span class="p">,</span> <span class="nx">etc</span>
+</pre></div>
+
+
+<div class="codehilite"><pre>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s">&quot;something&quot;</span>
+        <span class="k">pass</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>mypy</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">mypy</span><span class="o">-</span><span class="n">lang</span><span class="p">.</span><span class="n">org</span>
+<span class="o">*</span> <span class="n">typing</span> модуль в 3<span class="p">.</span>5<span class="o">+</span>
+<span class="o">*</span> типизация переменных в 3<span class="p">.</span>6
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Как работает - базовые типы</h3>
+<div class="codehilite"><pre>    <span class="nv">$ </span>pip install mypy-lang
+    <span class="nv">$ </span>mypy PYTHON_FILES
+</pre></div>
+
+
+<div class="codehilite"><pre>    <span class="nv">ALL_FILES</span><span class="o">=</span><span class="k">$(</span>shell find wally/ -type f -name <span class="s1">&#39;*.py&#39;</span><span class="k">)</span>
+    <span class="nv">STUBS</span><span class="o">=</span><span class="s2">&quot;stubs:.env/lib/python3.5/site-packages&quot;</span>
+    <span class="nv">ACTIVATE</span><span class="o">=</span><span class="nb">cd</span> ~/workspace/wally; <span class="nb">source</span> .env/bin/activate
+
+    mypy:
+            bash -c <span class="s2">&quot;${ACTIVATE}; MYPYPATH=${STUBS} python3 -m mypy -s ${ALL_FILES}&quot;</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>mypy in action</h3>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+<span class="k">def</span> <span class="nf">f1</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c"># mypy и сам это умеет</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>  <span class="c"># type: int</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;2&quot;</span><span class="p">)</span>
+<span class="n">f1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;2&quot;</span><span class="p">)</span>  <span class="c"># code.py:98: error: Argument 2 to &quot;f1&quot; has</span>
+            <span class="c"># incompatible type &quot;str&quot;; expected &quot;int&quot;</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>mypy in action</h3>
+<div class="codehilite"><pre>    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c"># code.py:101: error: &#39;builtins.int*&#39; object is not iterable</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Как работает - контейнеры</h3>
+<div class="codehilite"><pre><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span>
+<span class="n">C1</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Как работает - более сложные случаи</h3>
+<div class="codehilite"><pre><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeOf</span>
+
+<span class="n">T1</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s">&#39;T1&#39;</span><span class="p">,</span> <span class="n">Callable</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">extract_func</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">T1</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c">#---------------------------------------------------</span>
+
+<span class="n">MyType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s">&#39;MyType&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">factory</span><span class="p">(</span><span class="n">c</span><span class="p">:</span> <span class="n">TypeOf</span><span class="p">[</span><span class="n">MyType</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MyType</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">c</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">D</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>  <span class="c"># type: D</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Типизация в комментариях</h3>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">f1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="c"># type: (int, int) -&gt; int</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>  <span class="c"># type: int</span>
+    <span class="k">return</span> <span class="n">r</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Типизация в pyi файлах</h3>
+<div class="codehilite"><pre><span class="o">*</span> Именно там лежат стабы для <span class="n">stdlib</span> 
+<span class="o">*</span> Называете файл как модуль<span class="p">,</span> но <span class="n">c</span> расширением <span class="n">pyi</span>
+<span class="o">*</span> Поместить в папку<span class="p">,</span> где его найдет <span class="n">mypy</span>
+</pre></div>
+
+
+<div class="codehilite"><pre>    <span class="k">def</span> <span class="nf">f1</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="p">:</span><span class="o">...</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Forward reference</h3>
+<div class="codehilite"><pre>    <span class="k">class</span> <span class="nc">X</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s">&#39;X&#39;</span><span class="p">:</span>
+            <span class="o">...</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Что меняется</h3>
+<div class="codehilite"><pre><span class="o">*</span> Циклические зависимости <span class="o">-</span> интерфейсы
+<span class="o">*</span> Тут вам не <span class="n">Go</span><span class="p">.</span> Наследовать интерфейся нужно явно
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Проблемы c Optional</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="o">--</span><span class="n">strict</span><span class="o">-</span><span class="n">optional</span> <span class="o">-</span> <span class="n">cool</span>!
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Проблемы - поддержка</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">pycharm</span>  <span class="o">-</span> 3 <span class="n">from</span> 5
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Проблемы - баги</h3>
+<div class="codehilite"><pre><span class="o">*</span> 534 открытых тикета в трекере<span class="p">.</span> БОльшая часть баги<span class="p">.</span>
+</pre></div>
+
+
+<div class="codehilite"><pre>    <span class="c"># fails in pycharm</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="mi">1</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Проблемы - баги. На коротких примерах не воспроизводится</h3>
+<div class="codehilite"><pre>    <span class="k">class</span> <span class="nc">Storage</span><span class="p">():</span>
+        <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="o">*</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="o">...</span>
+
+    <span class="k">class</span> <span class="nc">ResultStorage</span><span class="p">(</span><span class="n">IResultStorage</span><span class="p">):</span>
+        <span class="n">storage</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># type: Storage</span>
+        <span class="o">....</span>
+        <span class="k">def</span> <span class="nf">append_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">node_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metrics_fqn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="o">...</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">node_id</span><span class="p">,</span> <span class="n">metrics_fqn</span><span class="p">,</span> <span class="s">&quot;unknown&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="c"># wally/hlstorage.py: note: In member &quot;append_sensor&quot; of class &quot;ResultStorage&quot;:</span>
+    <span class="c"># wally/hlstorage.py:165: error: No return value expected</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Проблемы</h3>
+<div class="codehilite"><pre><span class="o">*</span> Документация
+<span class="o">*</span> Сообщество
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Сторонние библиотеки</h3>
+<div class="codehilite"><pre><span class="o">*</span> Тут картинка с Траволтой
+<span class="o">*</span> Для <span class="n">FP</span> библиотек особенно сложно все
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Kовариантность и контравариантность</h3>
+<div class="codehilite"><pre>    <span class="k">class</span> <span class="nc">X</span><span class="p">:</span> <span class="k">pass</span>
+    <span class="k">class</span> <span class="nc">Y</span><span class="p">(</span><span class="n">X</span><span class="p">):</span> <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">f1</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">X</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c"># type: List[Y]</span>
+
+    <span class="n">f1</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c"># FAIL - Argument 1 to &quot;f1&quot; has incompatible type List[Y]; expected List[X]</span>
+
+    <span class="n">f1</span><span class="p">([</span><span class="n">Y</span><span class="p">(),</span> <span class="n">Y</span><span class="p">()])</span>    <span class="c"># OK</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Нехватка функциональности</h3>
+<div class="codehilite"><pre><span class="o">*</span> Копирование типов
+</pre></div>
+
+
+<div class="codehilite"><pre>    <span class="k">def</span> <span class="nf">mydec</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="err">????</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="err">????</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">closure</span><span class="p">(</span><span class="n">p1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">closure</span> 
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s">&#39;X&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">add1</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">X</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3><strong>XXX</strong></h3>
+<div class="codehilite"><pre>    <span class="k">class</span> <span class="nc">X</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="c"># code.py: note: In member &quot;__init__&quot; of class &quot;X&quot;:</span>
+    <span class="c"># code.py:66: error: Function is missing a type annotation</span>
+
+    <span class="k">class</span> <span class="nc">X</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="c"># OK</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3><strong>XXX</strong></h3>
+<div class="codehilite"><pre>    <span class="k">class</span> <span class="nc">X</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="s">&#39;X&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s">&#39;X&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="c"># code.py: note: In member &quot;__init__&quot; of class &quot;X&quot;:</span>
+    <span class="c"># code.py:66: error: Function is missing a type annotation</span>
+
+    <span class="k">class</span> <span class="nc">X</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="c"># OK</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Появляются плохо читаемы описания типов</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">A</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">M</span><span class="p">]],</span> <span class="n">C</span><span class="p">]</span>  <span class="o">==</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="p">{</span><span class="n">B</span><span class="p">:</span><span class="n">T</span><span class="p">},</span> <span class="p">[</span><span class="n">M</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">C</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Без cast пока никуда</h3>
+<div class="codehilite"><pre>    <span class="c"># OK</span>
+    <span class="n">auth_url</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">openrc</span><span class="p">[</span><span class="s">&#39;os_auth_url&#39;</span><span class="p">])</span>
+
+    <span class="c"># NOT OK</span>
+    <span class="n">RequestMethod</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span>
+    <span class="n">PUT</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">RequestMethod</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">make_call</span><span class="p">,</span> <span class="s">&#39;put&#39;</span><span class="p">))</span>  <span class="c"># type: RequestMethod</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Держите себя в руках</h3></div></section>
+<section class="slide "><div class="content"><h3>Итоги</h3>
+<h3>Вопросы и помидоры</h3></div></section>
+
+
+<!-- deck.status snippet -->
+<p class="deck-status">
+	<span class="deck-status-current"></span>
+	/
+	<span class="deck-status-total"></span>
+</p>
+
+<!-- Grab CDN jQuery, with a protocol relative URL; fall back to local if offline -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/jquery-1.7.2.min.js"><\/script>')</script>
+
+<!-- Deck Core and extensions -->
+<script src="js/deck.core.js"></script>
+<script src="js/deck.status.js"></script>
+<script src="js/deck.scale.js"></script>
+
+<!-- Initialize the deck -->
+<script>
+$(function() {
+	$.deck('.slide');
+});
+</script>
+
+</body>
+</html>

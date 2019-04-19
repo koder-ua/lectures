@@ -1,0 +1,28 @@
+.menu {
+    width: 10%;
+    margin-left: 0%;
+    float: left;
+    background-color: aquamarine;
+    text-align: left;
+    top:0px;
+    /*position:absolute;*/
+    position:fixed;
+}
+
+.main {
+    position:absolute;
+    top:0px;
+    margin-left: 10%;
+    width: 90%;
+    float: right;
+    background-color: antiquewhite;
+    text-align: center;
+}
+
+.data {
+    visibility: hidden;
+}
+
+.menu ul {
+    padding: 25px 30px;
+}

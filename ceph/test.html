@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <link rel="stylesheet" type="text/css" href="test.css" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        function clicked(el_id) {
+            for(const old of document.getElementsByClassName("main")) {
+                old.classList.remove('main');
+                old.classList.add('data');
+            }
+            const el = document.getElementById(el_id);
+            el.classList.remove('data');
+            el.classList.add('main');
+        }
+
+        const coef = 100;
+
+        function onload() {
+            for(const cls of ["data", "main"]) {
+                for (const elem of document.getElementsByClassName(cls)) {
+                    const data = elem.innerHTML;
+                    for(let i = 0; i < coef ; i++) {
+                        elem.innerHTML += data;
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body onload="onload()">
+<div class="menu">
+    <ul>
+        <li><a onclick="clicked('1')">test1</a></li>
+        <li><a onclick="clicked('2')">test2</a></li>
+    </ul>
+</div>
+<div class="main" id="1">data1<br></div>
+<div class="data" id="2">atad2<br></div>
+</body>
+</html>

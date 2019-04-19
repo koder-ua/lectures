@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	
+	<title>pydown</title>
+	
+	<meta name="description" content="A jQuery library for modern HTML presentations">
+	<meta name="author" content="Caleb Troughton">
+	<meta name="viewport" content="width=1024, user-scalable=no">
+	
+	<!-- Core and extension CSS files -->
+	<link rel="stylesheet" href="css/deck.core.css">
+	<link rel="stylesheet" href="css/deck.status.css">
+	<link rel="stylesheet" href="css/deck.scale.css">
+	
+	<!-- Style theme. More available in /themes/style/ or create your own. -->
+	<link rel="stylesheet" href="css/web-2.0.css">
+	
+	<!-- Transition theme. More available in /themes/transition/ or create your own. -->
+	<link rel="stylesheet" href="css/horizontal-slide.css">
+
+	<link rel="stylesheet" href="css/md_hl.css">
+	
+	<script src="js/modernizr.custom.js"></script>
+</head>
+
+<body class="deck-container">
+
+<!-- Begin slides -->
+<section class="slide "><div class="content"><h2>Архитектура (веб) сервисов с хранением данных в RAM</h2>
+<h3>Данилов Константин, Mirantis</h3>
+<h3>http://koder-ua.blogspot.com/</h3>
+<h3>https://github.com/koder-ua/</h3></div></section>
+<section class="slide "><div class="content"><h2>Mirantis</h2>
+<h2>hr@mirantis.com</h2>
+<h2>Львов, Харьков</h2>
+<h2>Python/C/C++/etc</h2>
+<p><img alt="arch" src="../images/Mirantis-logo.png" />  <img alt="arch" src="../images/openstack-logo.jpg" /> </p></div></section>
+<section class="slide "><div class="content"><h3>Классическая архитуктура сервисов</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">Stateless</span> сервервера
+<span class="o">*</span> Многопоточный режим
+<span class="o">*</span> Состояние в БД
+</pre></div>
+
+
+<p><img alt="arch" src="../images/classic_arch.jpg" /> </p></div></section>
+<section class="slide "><div class="content"><h3>Отдельный поток</h3>
+<p><img alt="arch" src="../images/classical_thread.jpg" /> </p></div></section>
+<section class="slide "><div class="content"><h3>Учет средств в сетевом маркетинге</h3>
+<h3>intvideo.tv</h3>
+<p><img alt="tree" src="../images/tree.jpg" />     </p></div></section>
+<section class="slide "><div class="content"><h3>Городские легенды в IT</h3>
+<h3>The Free Lunch Is Over (c) Herb Sutter</h3>
+<div class="codehilite"><pre><span class="o">*</span> Производительность процессоров заметно растет
+<span class="o">*</span> Процессоры уже очень быстрые
+<span class="o">*</span> Особенно если писать эффективный код
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Бутылочное горлышко</h3>
+<div class="codehilite"><pre><span class="o">*</span> Сеть
+<span class="o">*</span> Диск
+<span class="o">*</span> Синхронизация потоков
+<span class="o">*</span> Дело не только в ожидании
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Бутылочное горлышко</h3>
+<h3>MySQL (по версии VoltDB team):</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="o">&gt;</span> 20<span class="c">% Журнал отката/WAL</span>
+<span class="o">*</span> <span class="o">&gt;</span> 20<span class="c">% Блокировки</span>
+<span class="o">*</span> <span class="o">&gt;</span> 20<span class="c">% Управление буферами</span>
+<span class="o">*</span> <span class="o">&gt;</span> 20<span class="c">% Предвыборка данных</span>
+<span class="o">*</span> <span class="o">&lt;</span> 10<span class="c">% Полезная работа</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Городские легенды в IT</h3>
+<h3>данных "over 9000" (c) FB, VK, etc.</h3>
+<div class="codehilite"><pre><span class="o">*</span> &quot;Холодные&quot; и &quot;Горячие&quot; данные
+<span class="o">*</span> <span class="n">OLTP</span> <span class="n">vs</span> <span class="n">OLAP</span>
+<span class="o">*</span> Количество новых &quot;горячих&quot; данных ограниченно
+<span class="o">*</span> <span class="o">&lt;</span>10<span class="n">k</span> новых горячих данных в день на человек
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Современные компьютеры</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">EC2</span> <span class="o">-</span> $2<span class="p">.</span>8 за 244<span class="n">Gb</span> ОЗУ<span class="o">/</span>час <span class="p">(</span><span class="o">~</span>2<span class="n">k</span>$<span class="o">/</span><span class="n">month</span><span class="p">)</span>
+<span class="o">*</span> Горячие данные помещаются в ОЗУ
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Как этим воспользоваться</h3>
+<div class="codehilite"><pre><span class="o">*</span> Данные в памяти одного сервера
+<span class="o">*</span> Параллельная пост<span class="o">-</span> и предобработка
+<span class="o">*</span> Вся логика в одном потоке
+</pre></div>
+
+
+<p><img alt="arch" src="../images/ram_arch.jpg" /> </p></div></section>
+<section class="slide "><div class="content"><h3>Отказоустойчивость</h3>
+<div class="codehilite"><pre><span class="o">*</span> Сбои <span class="o">-</span> это снова исключения
+<span class="o">*</span> Репликация
+<span class="o">*</span> <span class="n">WAL</span> <span class="o">+</span> <span class="n">data</span> <span class="n">dump</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Линейная репликация</h3>
+<p><img alt="arch" src="../images/line_replica.jpg" /> </p>
+<div class="codehilite"><pre><span class="o">*</span> Сервера выстраиваются в &quot;линию&quot;
+<span class="o">*</span> Все работают с &quot;головой&quot;
+<span class="o">*</span> Новый сервер подключаентся к &quot;хвосту&quot;
+<span class="o">*</span> Репликация с <span class="n">fork</span><span class="o">-</span>копии
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>RAFT</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">raftconsensus</span><span class="p">.</span><span class="n">github</span><span class="p">.</span><span class="n">io</span><span class="o">/</span>
+<span class="o">*</span> Выносится в отдельные процесс
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Транзакции - fork</h3>
+<div class="codehilite"><pre><span class="o">*</span> Втаскивание новой ноды и транзакции через <span class="n">fork</span>
+<span class="o">*</span> Особенности форка <span class="o">-</span> замедление обоих процессов
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Транзакционная память</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">C</span>пособ использовать дополнительные ядра
+<span class="o">*</span> Транзакционная память <span class="o">+</span> <span class="n">RAM</span> <span class="o">==</span>
+<span class="o">*</span> Транзакции <span class="o">+</span> База
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Масштабирование</h3>
+<div class="codehilite"><pre><span class="o">*</span> Шардинг
+<span class="o">*</span> Ручной
+<span class="o">*</span> Тяжело
+<span class="o">*</span> Не всегда эффективен
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Примеры систем - LMAX</h3>
+<h3>ПО для биржи</h3>
+<div class="codehilite"><pre><span class="o">*</span> Несколько потоков для сбора данных
+<span class="o">*</span> Один поток для обработки транзакций в основной памяти
+<span class="o">*</span> Несколько потоков для постобработки результатов
+<span class="o">*</span> <span class="n">Disruptor</span> <span class="o">-</span> <span class="n">lock</span><span class="o">-</span><span class="n">free</span> очередь с множеством писателей для обмена данными
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Примеры систем</h3>
+<h3>Сетевой помошник</h3>
+<div class="codehilite"><pre><span class="o">*</span> Надоедливые помощники на сайтайх
+<span class="o">*</span> <span class="o">&gt;</span>10к пользователей
+<span class="o">*</span> <span class="o">&gt;</span>1<span class="n">k</span> помощников
+<span class="o">*</span> 50к <span class="n">tps</span> со старта
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Производительность</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="n">VoltDB</span> <span class="n">vs</span><span class="p">.</span> <span class="n">MySQL</span><span class="p">,</span> <span class="n">tpc</span><span class="o">-</span><span class="n">c</span> <span class="o">-</span> <span class="o">&gt;</span> <span class="o">~</span>100<span class="n">x</span>
+<span class="o">*</span> <span class="n">LMAX</span> <span class="o">-</span> <span class="o">&gt;</span>100<span class="n">k</span> <span class="n">tps</span> на одном ядре
+<span class="o">*</span> Обычно ускорение <span class="o">~</span>100<span class="n">x</span>
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>ВЫВОДЫ</h3>
+<div class="codehilite"><pre><span class="o">*</span> <span class="o">+</span> Скорость
+<span class="o">*</span> <span class="o">+</span> Простота и размер ядра системы
+<span class="o">*</span> <span class="o">+</span> Возможность переноса ядра на другой язык
+<span class="o">*</span> <span class="o">-</span> Сложное масштабирование
+<span class="o">*</span> <span class="o">-</span> Логика восстановления
+<span class="o">*</span> <span class="o">-</span> Состояние системы менее прозрачно
+</pre></div></div></section>
+<section class="slide "><div class="content"><h3>Спасибо</h3>
+<h3>Вопросы и помидоры</h3></div></section>
+
+
+<!-- deck.status snippet -->
+<p class="deck-status">
+	<span class="deck-status-current"></span>
+	/
+	<span class="deck-status-total"></span>
+</p>
+
+<!-- Grab CDN jQuery, with a protocol relative URL; fall back to local if offline -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/jquery-1.7.2.min.js"><\/script>')</script>
+
+<!-- Deck Core and extensions -->
+<script src="js/deck.core.js"></script>
+<script src="js/deck.status.js"></script>
+<script src="js/deck.scale.js"></script>
+
+<!-- Initialize the deck -->
+<script>
+$(function() {
+	$.deck('.slide');
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+Introduction: what is performance tests, whay there so many different results for same test, etc.
+Some math: how to process the test results and get something meaningful from them
+HDD overview: how it works, what to test
+SSD overview: how it works, what to test
+Ceph overview
+Other type of storages
+Storage test selection: what parameters need to be measured in each case
+Showing test results: presenting, plotting
+Low-level testing tools: fio & Co
+Hight-level testing tools: cbt, cosbench
+Wally: mirantis ceph team storage performance tester
+

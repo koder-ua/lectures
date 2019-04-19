@@ -1,0 +1,23 @@
+Do you have a 1+ year experience with any programming languages? Name couple of them
+
+Mark topics, which is clear for you (you don't need any additional information on them):
+	* variables
+	* Basic data types - int, float, string
+	* unicode
+	* list/tuple
+	* dictionary/set
+
+	* Control structures (if, while, for)
+	* Exceptions
+
+	* Basic classes
+	* Class inheritance
+	* Virtual functions
+
+	* Basic Functions
+	* Generators
+	* Decorators
+	* Closures
+
+	* Multithreading
+

@@ -1,0 +1,115 @@
+Introduction:
+-------------
+    * Examples of different performance plots
+
+General part
+------------
+    * Statistic
+        * 42 is not an answer
+        * average, deviation, percentiles
+        * confidence interval
+        * normal distribution
+        * Before apply statistic to values - check distribution
+        * latency (mostly) never distributed normaly - have to use percentiles.
+          latency don't fall into any simple approximation
+        * Round you results to first digit of deviation. In most cases two digits
+          is enought
+
+    * Plotting
+        * why we plotting data - try to help human to find hidden relations
+          in them. So plot related data on single graph
+          http://software.intel.com/sites/default/files/managed/32/b1/ceph2_SR.png
+          Don't need to plot numbers, which fit into simple law.
+
+        * Never try to make you curve touch every result - use approximation
+            scipy.optimize.curve_fit/chebfit/chebval
+
+        * Plot error bar (unless you creatinag a chart for management)
+
+        * Plot logscale
+
+    * Performance test types:
+        * low level - try to detect and measure all basic aspects of system
+            * iops, lat, bw
+            * if for any aspect A better that B, that for any load A > B
+
+        * hight level - emulates final load
+            * to many loads
+            * to different loads might get a different results
+
+    * There a lot of diffent results in web. We aren't really professional in anything.
+      Measure componets load during test and be sure, that
+      results fall into you model. Vary tests and check results.
+
+Disk tests
+----------
+    * Overview
+        * Review of different tests
+        * Hi-level/low-level
+        * iobench, bonnie++,.... - over 8000
+        * fio is the tool for low-level
+        * http://www.storageperformance.org/home/ - SPC-1(IOPS) + SPC-2(MBPS)
+
+    * HDD description
+        * HDD perfromance approximation
+            op_time = seek_time + size / bus_bw + size / plate_head_bw
+        * Reordering - decrease seek_time
+        * Test this - linearity check
+        * http://koder-ua.github.io/6.0GA/HDD_linearity_report.html
+        * Should also works for SAN/NAS/SDS(Ceph)
+            http://koder-ua.github.io/6.0GA/cinder_linearity_report.html
+        * O_SYNC/O_DIRECT for files and devices
+        * SAS vs. SATA
+        * 5k/7k/10k/15k
+
+    * SSD decription
+        * SSD is a computer inside you computer. Resulted storage
+          generaly emulated from hardware dies.
+        * SSD consists of banks. Each bank is (mostly)indepedent.
+          Read/write operation parallelized to them. SSD controller
+          mix pages from different bank in results storage.
+        * SLC/MLC/TLC
+        * Can't overwrite data. Write amplification. TRIM (ioctl - BLKDISCARD)
+
+    * Upcoming storages
+
+    * Test set selection
+        * We have a large space of possible parameter values.
+          Don't try to randomply select some values. Each selection
+          should have a reason. Scan space with large step to find
+          which parameters affect performance the most
+
+        * E.g. in case of disk tests:
+            * block size
+            * client count
+            * operation mode
+            * operation r,w,r+w
+            * ramp-up time
+            * test time
+            * ...
+
+    * Particular technics
+        * Prefilling
+        * Ramp-up
+        * Cache flushing
+
+Wally
+-----
+    * Only block storages
+    * From system to report
+    * Coordinating fio on different nodes to run workload in parallel
+    * Can cooperate with ceph/OS/FUEL
+    * Handle VM creation and preparation
+    * Prepared and tested low-level tests
+    * Loads
+    * Task config
+
+
+Other Ceph tests
+----------------
+    * cbt
+    * cosbench
+
+
+
+
