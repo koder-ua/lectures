@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-slide-content {
+        font-size: 30px;
+        padding: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+AIO
+===
+
+* поток/процесс на соединение
+* select/poll/epoll/kqueue
+
+???
+
+* описание функции select
+* расчет потребления памяти
+* расчет количеств переключения контекста
+* афинити ядер, PEP554
+* Проблема в паразитных переключениях
+
+---
+
+Варианты организации асинхронного кода
+
+```python
+def process():
+    conn = wait_for_conn()
+    while True:
+        conn.recv()
+    db.query()
+    rmq.get_message()
+    conn.send()
+```
+
+* select + FSA
+* callback/errback
+* CC with CA
+* Протоколы
+
+---
+
+* twisted
+* js
+
+---
+
+* Нити/акторы
+    - компиляция в FSA (kotlin/akka)
+    - сообщения (erlang/akka)
+    - stackless coroutine
+* Сопроцедуры
+
+---
+
+Нити/акторы
+===========
+erlang/elixir
+stackless python
+gevent
+scala/akka
+go
+
+???
+
+---
+
+Сопроцедуры
+===========
+
+* python yield
+* C# async/await
+* js async/await
+* kotlin suspend
+* rust
+* C++20
+
+---
+
+python async/await
+
+```python
+import asyncio
+
+async def client():
+    reader, writer = await asyncio.open_connection('127.0.0.1', 8888)
+    data = await reader.read(100)
+
+asyncio.run()
+```
+
+---
+
+```python
+
+def open_connection(addr):
+    sock = socket()
+    f = Future()
+    loop.connect(sock, addr, f)
+    return f
+
+def run_async(coro):
+    f = coro.__await__()
+    f.add_done_callback(set_coro_ready(coro))
+    loop.run()
+
+```
+
+---
+
+asyncio pros
+============
+
+* контролируемая латентность
+* отменяемые задачи
+* упрощение и повышение параллелизма
+* внутри есть scheduler loop, так что не нужно писать свой
+* uvloop
+
+---
+
+asyncio cons
+============
+
+решили сделать на сопроцедурах
+
+???
+* единственный вариант на сопроцедурах
+* съекономили время разработчиков библиотеки, но потеряли время всех остальных
+* интрузивный - требует полного переписывания кода
+* код получается сложнее
+* нельзя (очень сложно) обеспечивать синхронный и асинхронный API из одной кодовой базы
+
+* не предоставляет возможности переключаться между корутинами
+* ctrl+c
+
+
+---
+
+yield from / await реализованны топорно, без необходимой оптимизации
+
+* медленный (это вранье https://eng.paxos.com/should-i-migrate-to-an-async-framework)
+  и вообще очень много вранья в инете. Показывают вам одно API, а тестируют скорость другого
+* кривости асинхронных итераторов и контекстных манагеров
+
+* агитирует за нелегальные методики программирования(!) и сам наступает на свои же грабли
+*
+ безосновательно ужасно сложный код asyncio
+* нетипизированный безосновательно ужасно сложный код asyncio
+* Плохо документированное API (протоколы & low level)
+
+* очень плохо взаимодействует с потоками
+* проблемный и неконсистентный API (до 3.7 вообще ужас).
+    StopAsyncIterator, TimeoutError, etc
+
+* функции с 7ю неименованными параметрами
+
+---
+никакой поддержки в ядре языка и стандартной библиотеке для сопроцедур
+
+* map/filter/join
+* urllib/etc
+
+
+---
+* тулинг кривой (профилировщики, отладчики), правда есть шансы улучшить с 3.7
+* типизация получается адовая, плохая интеграция с mypy, баги в PyCharm.
+  Без него легко забыть async/await
+  (правда забытый await вам подскажут. в рантайме)
+* очень слабая поддержка библиотеками. Не видно причины почему это изменится.
+  grpc, базы, ...
+* нет асинхронных операций с файлами (привет, клауды)
+* слабая поддержка CSP
+* непонятная целевая аудитория, особенно при наличии Go (HiPerf это не про питон)
+
+---
+
+```python
+
+def x() -> Iterator[int]:
+    yield 1
+
+# =>
+
+def x() -> Iterator[int]:
+    return yield from y()
+
+def x() -> Iterator[int]:
+    return y()
+
+def y() -> Iterator[int]:
+    yield 1
+```
+
+---
+
+```python
+
+async def x() -> Coroutine[Any, Any, int]:
+    return await some_func_return_int()
+
+v = await x()
+
+# =>
+
+async def x() -> Coroutine[Any, Any, int]:
+    return y()
+
+v = await (await x())
+
+# =>
+
+def x() -> Coroutine[Any, Any, int]:
+    return y()
+
+async def x() -> Coroutine[Any, Any, int]:
+    return await y()
+```
+
+---
+yield from
+==========
+```python
+def use_yield_from(v):
+    if v == 0:
+        for _ in range(1000):
+            yield 1
+    else:
+        yield from tt(v - 1)
+```
+
+```
+In [8]: %timeit list(use_yield(30))
+743 µs
+
+In [10]: %timeit list(use_yield_from(30))
+579 µs
+
+In [12]: %timeit list(return_iterator(30))
+39.6 µs
+```
+
+
+---
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="remark-zoom.js" type="text/javascript"></script>
+    <script src="http://gnab.github.io/remark/downloads/remark-latest.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({highlightStyle: 'solarized-light', ratio: '4:3'});
+
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+
+      MathJax.Hub.Configured();
+    </script>
+  </body>
+</html>
